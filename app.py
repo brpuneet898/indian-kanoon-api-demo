@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 from dotenv import load_dotenv
 import os 
@@ -43,10 +43,17 @@ def index():
         if "search_query" in request.form:
             query = request.form["search_query"]
             results = search_cases(query)
-            print(results)
-            print(results["docs"][0])
 
     return render_template("index.html", results=results, document=document)
+
+@app.route("/api/document/<docid>", methods=["GET"])
+def get_doc_details(docid):
+    """Fetch full document details from Indian Kanoon API"""
+    try:
+        doc_data = get_document(docid)
+        return jsonify(doc_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
